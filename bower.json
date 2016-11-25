@@ -1,0 +1,11 @@
+{
+  "name": "custom-paint-experiments",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "description": "",
+  "main": "",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "",
+  "private": true
+}
