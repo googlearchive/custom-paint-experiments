@@ -1,0 +1,70 @@
+<script>
+class CSSStyleValue {
+  constructor(cssText) {
+    this.cssText = cssText;
+  }
+  static parse(property, cssText) {
+    if (CSS.supports(property, cssText)) {
+      return new CSSStyleValue(cssText);
+    } else {
+      throw new SyntaxError();
+    }
+  }
+}
+
+class StylePropertyMap {
+  constructor(styleDeclaration, properties) {
+    this._properties = {};
+    if (!Array.isArray(properties))
+      return;
+    properties.forEach(k => this._properties[k] = styleDeclaration.getPropertyValue(k));
+  }
+  get(property) {
+    return new CSSStyleValue(this._properties[property]);
+  }
+}
+
+class CanvasPainter {
+  constructor(config) {
+    this._invalid = false;
+    this._geom = config.geom || {width: 0, height: 0};
+    this._ratio = config.ratio || window.devicePixelRatio || 1;
+    this._canvas = config.canvas || document.createElement('canvas');
+    this._paintCtor = config.paintCtor;
+    this._properties = config.properties || null;
+  }
+  get canvas() {
+    return this._canvas;
+  }
+  get ratio() {
+    return this._ratio;
+  }
+  updateGeometry(element) {
+    var {width, height} = element.getBoundingClientRect();
+    var [width, height] = [Math.round(width * this._ratio), Math.round(height * this.ratio)];
+    if (this._geom.width != width && this._geom.height != height) {
+      this._invalid = true;
+      this._geom = {width, height};
+    }
+  }
+  updateStyle(element) {
+    // TODO: compare properties?
+    this._invalid = true;
+    this._properties = new StylePropertyMap(getComputedStyle(element), this._paintCtor.inputProperties)
+  }
+  repaint(element) {
+    if (!this._invalid) {
+      return false;
+    }
+    let canvas = this._canvas;
+    canvas.width = Math.round(this._geom.width);
+    canvas.height = Math.round(this._geom.height);
+    let painter = new this._paintCtor();
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    painter.paint(ctx, this._geom, this._properties);
+    this._invalid = false;
+    return true;
+  }
+}
+</script>

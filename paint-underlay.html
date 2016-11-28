@@ -1,0 +1,38 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<dom-module id="paint-underlay">
+  <template>
+    <style>
+      #underlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+      #content {
+        position: relative;
+        color: blue;
+      }
+      :host {
+        display: block;
+        position: relative;
+      }
+    </style>
+    <canvas id="underlay"></canvas>
+    <div id="content">
+      <slot name="content"></slot>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+class PaintUnderlay extends Polymer.Element {
+  static get is() { return 'paint-underlay'; }
+  static get config() {
+    return {};
+  }
+  constructor() {
+    super();
+  }
+}
+customElements.define(PaintUnderlay.is, PaintUnderlay);
+</script>
+
