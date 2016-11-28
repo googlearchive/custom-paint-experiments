@@ -1,0 +1,35 @@
+<link rel="import" href="paint-underlay.html">
+<link rel="import" href="paint-lib.html">
+<style>
+textarea {
+  background: transparent;
+}
+paint-underlay {
+  display: inline-block;
+}
+</style>
+<paint-underlay id=pu>
+  <textarea slot="content">hello, circle!</textarea>
+</paint-underlay>
+<script>
+class Circle {
+  paint(ctx, geom) {
+    ctx.fillStyle = 'red';
+    let x = geom.width / 2;
+    let y = geom.height / 2;
+    ctx.arc(x, y, Math.min(x, y), 0, 2 * Math.PI);
+    ctx.fill();
+  }
+}
+var cp = new CanvasPainter({
+  paintCtor: Circle,
+  canvas: pu.$.underlay,
+});
+
+function loop(t) {
+  cp.updateGeometry(pu);
+  cp.repaint();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
