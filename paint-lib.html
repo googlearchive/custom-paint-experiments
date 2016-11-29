@@ -30,7 +30,7 @@ class CanvasPainter {
     this._geom = config.geom || {width: 0, height: 0};
     this._ratio = config.ratio || window.devicePixelRatio || 1;
     this._canvas = config.canvas || document.createElement('canvas');
-    this._painter = new config.paintCtor();
+    this._painter = config.painter;
     this._properties = config.properties || null;
   }
   get canvas() {
