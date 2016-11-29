@@ -1,9 +1,6 @@
-<link rel="import" href="paint-underlay.html">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="import" href="paint-lib.html">
 <style>
-textarea {
-  background: transparent;
-}
 canvas {
   width: 100vw;
   height: 100vh;
@@ -18,24 +15,28 @@ body {
 <script>
 class WebComponents {
   static get inputProperties() {
-    return ['r'];
+    return ['stroke-opacity'];
+  }
+  constructor() {
+    this.path1 = new Path2D('M160.6 65.9l-17.4 29.3-24.4-29.7 24.4-28.9z M141 31.4l-26.2 31.8-15.9-26.6L123.6.9z');
+    this.path2 = new Path2D('M141.3 100.2l-26.5-31.7-15.9 26.6 24.7 36.1z');
+    this.path4 = new Path2D('M78.6 130.8L41 65.8 79.1.8H37.9L.4 65.8l37.5 65z');
+    this.path5 = new Path2D('M61.1 31.4H141L123.4.9H78.7z M114.8 63.3H159l-15.9-26.8H98.8');
+    this.path6 = new Path2D('M141.3 100.3H61l17.6 30.5h45z M114.8 68.4H159l-15.9 26.8H98.8');
   }
   paint(ctx, geom, properties) {
 
-    var r = properties.get('r').cssText.replace('px', '');
+    var r = parseFloat(properties.get('stroke-opacity').cssText);
 
     var scale = 0.8 * Math.min(geom.width/161, geom.height/132);
     ctx.translate(geom.width/2, geom.height/2);
     ctx.scale(scale, scale);
-    ctx.rotate(parseFloat(r) * Math.PI / 180);
+    ctx.rotate(r * 360 * Math.PI / 180);
     ctx.translate(-161/2, -132/2);
 
     function path(path, fill) {
-      ctx.save();
-      ctx.clip(new Path2D(path));
       ctx.fillStyle = fill;
-      ctx.fillRect(0, 0, 10 * geom.width, 10 * geom.height);
-      ctx.restore();
+      ctx.fill(path);
     }
 
     function gradient(a, b) {
@@ -45,28 +46,28 @@ class WebComponents {
       return gradient;
     }
 
-    path("M160.6 65.9l-17.4 29.3-24.4-29.7 24.4-28.9z", '#166DA5');
-    path("M141.3 100.2l-26.5-31.7-15.9 26.6 24.7 36.1z", '#8FDB69');
-    path("M141 31.4l-26.2 31.8-15.9-26.6L123.6.9z", '#166DA5');
-    path("M78.6 130.8L41 65.8 79.1.8H37.9L.4 65.8l37.5 65z", '#010101');
+    path(this.path1, '#166DA5');
+    path(this.path2, '#8FDB69');
+    path(this.path4, '#010101');
 
     ctx.globalAlpha = 0.95;
-    path('M61.1 31.4H141L123.4.9H78.7z M114.8 63.3H159l-15.9-26.8H98.8', gradient('#2A3B8F', '#29ABE2'));
-    path('M141.3 100.3H61l17.6 30.5h45z M114.8 68.4H159l-15.9 26.8H98.8', gradient('#E7F716', '#B4D44E'));
+    let gradient1 = this.gradient1 || (this.gradient1 = gradient('#2A3B8F', '#29ABE2'));
+    let gradient2 = this.gradient2 || (this.gradient2 = gradient('#E7F716', '#B4D44E'));
+    path(this.path5, gradient1);
+    path(this.path6, gradient2);
   }
 }
 
 var cp = new CanvasPainter({
   paintCtor: WebComponents,
   canvas,
-  ratio: 0.05,
 });
 
 var anim = canvas.animate({
-  r: ['0px', '360px'],
+  'strokeOpacity': ['0', '1'],
 }, {
-  duration: 5000,
-  easing: 'linear',
+  duration: 1000,
+  easing: 'ease-in-out',
   iterations: Infinity,
 });
 
@@ -78,3 +79,4 @@ function loop(t) {
 }
 loop();
 </script>
+

@@ -30,7 +30,7 @@ class CanvasPainter {
     this._geom = config.geom || {width: 0, height: 0};
     this._ratio = config.ratio || window.devicePixelRatio || 1;
     this._canvas = config.canvas || document.createElement('canvas');
-    this._paintCtor = config.paintCtor;
+    this._painter = new config.paintCtor();
     this._properties = config.properties || null;
   }
   get canvas() {
@@ -50,7 +50,7 @@ class CanvasPainter {
   updateStyle(element) {
     // TODO: compare properties?
     this._invalid = true;
-    this._properties = new StylePropertyMap(getComputedStyle(element), this._paintCtor.inputProperties)
+    this._properties = new StylePropertyMap(getComputedStyle(element), this._painter.constructor.inputProperties)
   }
   repaint(element) {
     if (!this._invalid) {
@@ -70,9 +70,8 @@ class CanvasPainter {
     if (clear) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-    let painter = new this._paintCtor();
     ctx.save();
-    painter.paint(ctx, this._geom, this._properties);
+    this._painter.paint(ctx, this._geom, this._properties);
     ctx.restore();
     this._invalid = false;
     return true;
