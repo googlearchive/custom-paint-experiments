@@ -39,6 +39,10 @@ class CanvasPainter {
   get ratio() {
     return this._ratio;
   }
+  set ratio(value) {
+    this._ratio = value;
+    this._invalid = true;
+  }
   updateGeometry(element) {
     let {width, height} = element.getBoundingClientRect();
     if (this._geom.width != width || this._geom.height != height) {
