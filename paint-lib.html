@@ -40,8 +40,7 @@ class CanvasPainter {
     return this._ratio;
   }
   updateGeometry(element) {
-    var {width, height} = element.getBoundingClientRect();
-    var [width, height] = [Math.round(width * this._ratio), Math.round(height * this.ratio)];
+    let {width, height} = element.getBoundingClientRect();
     if (this._geom.width != width || this._geom.height != height) {
       this._invalid = true;
       this._geom = {width, height};
@@ -58,21 +57,26 @@ class CanvasPainter {
     }
     let canvas = this._canvas;
     var clear = true;
-    if (this._geom.width != canvas.width) {
-      canvas.width = this._geom.width;
+    let width = Math.ceil(this._ratio * this._geom.width);
+    let height = Math.ceil(this._ratio * this._geom.height);
+    if (canvas.width != width) {
+      canvas.width = width;
       clear = false;
     }
-    if (this._geom.height != canvas.height) {
-      canvas.height = this._geom.height;
+    if (canvas.height != height) {
+      canvas.height = height;
       clear = false;
     }
     let ctx = canvas.getContext('2d');
+    ctx.resetTransform();
     if (clear) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+    ctx.scale(this._ratio, this._ratio);
     ctx.save();
     this._painter.paint(ctx, this._geom, this._properties);
     ctx.restore();
+    ctx.scale(this._ratio, this._ratio);
     this._invalid = false;
     return true;
   }
