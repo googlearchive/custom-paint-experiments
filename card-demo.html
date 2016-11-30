@@ -12,7 +12,6 @@ class CardStack {
     let radius = 6;
     let extent = inset - 1;
     let a = Math.atan(extent / Math.max(geom.width / 2, geom.height / 2));
-    console.log(a);
     var r = Math.min(geom.width, geom.height);
     for (var rotation of [-a, a, 0]) {
       ctx.save();
