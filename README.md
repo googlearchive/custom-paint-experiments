@@ -2,8 +2,8 @@
 ```
 <custom-element-demo>
   <template>
-    <link rel="import" href="paint-lib.html">
     <link rel="import" href="paint-underlay.html">
+    <link rel="import" href="card-stack-painter.html">
     <style>
       paint-underlay {
         display: inline-block;
@@ -37,6 +37,9 @@
   Painters.registerPaint('my-painter', MyPainter);
 </script>
 <paint-underlay id="pu" paint="my-painter" auto-update-geometry auto-update-style>
+  <div slot=content>Hello, paint!</div>
+</paint-underlay>
+<paint-underlay paint="card-stack" auto-update-geometry auto-update-style>
   <div slot=content>Hello, paint!</div>
 </paint-underlay>
 ```
