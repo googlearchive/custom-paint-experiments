@@ -24,6 +24,53 @@ class StylePropertyMap {
   }
 }
 
+class NativePaint {
+  static get available() {
+    return 'paintWorklet' in window;
+  }
+  static register(name, paintCtor) {
+    paintWorklet.import(`data:text/javascript,${encodeURIComponent(paintCtor.toString())}`);
+    paintWorklet.import(`data:text/javascript,registerPaint(${JSON.stringify(name)}, CardStack)`);
+  }
+}
+
+class DummyPainter {
+  constructor(config) {
+    this._ratio = config.ratio || window.devicePixelRatio || 1;
+    this._painter = config.painter;
+    this._properties = config.properties || null;
+  }
+  get ratio() {
+    return this._ratio;
+  }
+  set ratio(value) {
+  }
+  updateGeometry(element) {
+  }
+  updateStyle(element) {
+  }
+  repaint(element) {
+  }
+}
+
+function patchContext(ctx, ratio) {
+  ctx._ratio = ratio / window.devicePixelRatio;
+  if (ctx.patched) {
+    return;
+  }
+  ctx.patched = true;
+  var descriptor = Object.getOwnPropertyDescriptor(ctx.constructor.prototype, 'shadowBlur');
+  Object.defineProperty(ctx, 'shadowBlur', {
+    get: function() {
+      return descriptor.get.call(this) / this._ratio;
+    },
+    set: function(value) {
+      descriptor.set.call(this, value * this._ratio);
+    },
+    enumerable: false,
+  });
+}
+
 class CanvasPainter {
   constructor(config) {
     this._invalid = false;
@@ -72,6 +119,7 @@ class CanvasPainter {
       clear = false;
     }
     let ctx = canvas.getContext('2d');
+    patchContext(ctx, this._ratio);
     ctx.resetTransform();
     if (clear) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);

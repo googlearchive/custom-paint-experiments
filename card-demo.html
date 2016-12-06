@@ -38,15 +38,22 @@ class CardStack {
   }
 }
 
-var cp = new CanvasPainter({
-  canvas: pu.$.underlay,
-  painter: new CardStack(),
-});
+if (NativePaint.available) {
+  NativePaint.register('card-stack', CardStack);
+  pu.$.underlay.width = 0;
+  pu.$.underlay.height = 0;
+  pu.$.underlay.style.backgroundImage = 'paint(card-stack)';
+} else {
+  var cp = new CanvasPainter({
+    canvas: pu.$.underlay,
+    painter: new CardStack(),
+  });
 
-function loop() {
-  cp.updateGeometry(pu);
-  cp.repaint();
-  requestAnimationFrame(loop);
+  function loop() {
+    cp.updateGeometry(pu);
+    cp.repaint();
+    requestAnimationFrame(loop);
+  }
+  loop();
 }
-loop();
 </script>
