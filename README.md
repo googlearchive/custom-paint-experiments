@@ -34,7 +34,7 @@
       ctx.fillRect(0, 0, geom.width, geom.height);
     }
   }
-  Painters.registerPaint('my-painter', Painter);
+  Painters.registerPaint('my-painter', MyPainter);
 </script>
 <paint-underlay id="pu" paint="my-painter" auto-update-geometry auto-update-style>
   <div slot=content>Hello, paint!</div>
