@@ -34,6 +34,24 @@ class NativePaint {
   }
 }
 
+class Painters {
+  constructor() {
+  }
+  static registerPaint(name, ctor) {
+    Painters._painters[name] = ctor;
+  }
+  static ensure(name) {
+    if (!this._nativePainters[name]) {
+      NativePaint.register(name, Painters._painters[name]);
+    }
+  }
+  static get(name) {
+    return new Painters._painters[name]();
+  }
+}
+Painters._painters = {};
+Painters._nativePainters = {};
+
 class DummyPainter {
   constructor(config) {
     this._ratio = config.ratio || window.devicePixelRatio || 1;

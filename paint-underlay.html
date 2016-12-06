@@ -26,10 +26,88 @@
 class PaintUnderlay extends Polymer.Element {
   static get is() { return 'paint-underlay'; }
   static get config() {
-    return {};
+    return {
+      properties: {
+        paint: String,
+        autoUpdateStyle: {type: Boolean, value: false},
+        autoUpdateGeometry: {type: Boolean, value: false},
+      },
+    };
   }
+
   constructor() {
     super();
+  }
+  connectedCallback() {
+    this._connected = true;
+    super.connectedCallback();
+    this._scheduleAnimation();
+  }
+  disconnectedCallback() {
+    this._connected = false;
+    super.disconnectedCallback();
+  }
+  ready() {
+    super.ready();
+
+    if (!this.paint) {
+      return;
+    }
+    if (NativePaint.available) {
+      Painters.ensure(this.paint);
+      this.$.underlay.width = 0;
+      this.$.underlay.height = 0;
+      this.$.underlay.style.backgroundImage = `paint(${this.paint})`;
+    } else {
+      this._canvasPainter = new CanvasPainter({
+        canvas: pu.$.underlay,
+        painter: Painters.get(this.paint),
+      });
+      this._scheduleAnimation();
+    }
+  }
+
+  updateGeometry() {
+    if (this._canvasPainter) {
+      this._canvasPainter.updateGeometry(this);
+    }
+  }
+  updateStyle() {
+    if (this._canvasPainter) {
+      this._canvasPainter.updateStyle(this);
+    }
+  }
+  repaint() {
+    if (this._canvasPainter) {
+      this._canvasPainter.repaint();
+    }
+  }
+
+  get _fallbackActive() {
+    // FIXME: Check native.
+    return this._connected;
+  }
+  _animationCallback() {
+    this._rafId = undefined;
+    if (!this._fallbackActive) {
+      return;
+    }
+    if (this.autoUpdateGeometry) {
+      this.updateGeometry();
+    }
+    if (this.autoUpdateStyle) {
+      this.updateStyle();
+    }
+    this.repaint();
+    if (this.autoUpdateGeometry || this.autoUpdateStyle) {
+      this._scheduleAnimation();
+    }
+  }
+  _scheduleAnimation() {
+    if (!this._fallbackActive) {
+      return;
+    }
+    this._rafId = requestAnimationFrame(t => this._animationCallback());
   }
 }
 customElements.define(PaintUnderlay.is, PaintUnderlay);

@@ -26,23 +26,17 @@
     --color:LightSteelBlue;
   }
 </style>
-<paint-underlay id=pu>
-  <div slot=content>Hello, paint!</div>
-</paint-underlay>
 <script>
-  class Painter {
+  class MyPainter {
     static get inputProperties() { return ['--color']; }
     paint(ctx, geom, properties) {
       ctx.fillStyle = properties.get('--color').cssText;
       ctx.fillRect(0, 0, geom.width, geom.height);
     }
   }
-  var cp = new CanvasPainter({
-    canvas: pu.$.underlay,
-    painter: new Painter(),
-  });
-  cp.updateStyle(pu);
-  cp.updateGeometry(pu);
-  cp.repaint();
+  Painters.register('my-painter', Painter);
 </script>
+<paint-underlay id=pu paint="paint" auto-update-geometry auto-update-style>
+  <div slot=content>Hello, paint!</div>
+</paint-underlay>
 ```
