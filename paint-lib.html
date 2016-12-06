@@ -41,7 +41,7 @@ class Painters {
     Painters._painters[name] = ctor;
   }
   static ensure(name) {
-    if (!this._nativePainters[name]) {
+    if (NativePaint.available && !this._nativePainters[name]) {
       NativePaint.register(name, Painters._painters[name]);
     }
   }
@@ -72,7 +72,7 @@ class DummyPainter {
 }
 
 function patchContext(ctx, ratio) {
-  ctx._ratio = ratio / window.devicePixelRatio;
+  ctx._ratio = ratio;
   if (ctx.patched) {
     return;
   }
@@ -80,10 +80,10 @@ function patchContext(ctx, ratio) {
   var descriptor = Object.getOwnPropertyDescriptor(ctx.constructor.prototype, 'shadowBlur');
   Object.defineProperty(ctx, 'shadowBlur', {
     get: function() {
-      return descriptor.get.call(this) / this._ratio;
+      return descriptor.get.call(this) / (this._ratio / 2);
     },
     set: function(value) {
-      descriptor.set.call(this, value * this._ratio);
+      descriptor.set.call(this, value * (this._ratio / 2));
     },
     enumerable: false,
   });
