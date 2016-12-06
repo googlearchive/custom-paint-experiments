@@ -21,13 +21,20 @@
 ```
 -->
 ```html
+<style>
+  #pu {
+    --color:LightSteelBlue;
+  }
+</style>
 <paint-underlay id=pu>
   <div slot=content>Hello, paint!</div>
 </paint-underlay>
 <script>
   class Painter {
+    static get inputProperties() { return ['--color']; }
     paint(ctx, geom, properties) {
-      ctx.fillStyle = 'LightSteelBlue';
+      console.log(properties);
+      ctx.fillStyle = properties.get('--color').cssText;
       ctx.fillRect(0, 0, geom.width, geom.height);
     }
   }
@@ -35,6 +42,7 @@
     canvas: pu.$.underlay,
     painter: new Painter(),
   });
+  cp.updateStyle(pu);
   cp.updateGeometry(pu);
   cp.repaint();
 </script>
