@@ -1,0 +1,14 @@
+<link rel="import" href="paint-lib.html">
+<script>
+class CrossPainter {
+  paint(ctx, geom, properties) {
+    ctx.strokeStyle = 'red';
+    ctx.moveTo(0, 0);
+    ctx.lineTo(geom.width, geom.height);
+    ctx.moveTo(geom.width, 0);
+    ctx.lineTo(0, geom.height);
+    ctx.stroke();
+  }
+}
+Painters.registerPaint('cross', CrossPainter);
+</script>

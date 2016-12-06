@@ -32,6 +32,9 @@ class PaintUnderlay extends Polymer.Element {
         autoUpdateStyle: {type: Boolean, value: false},
         autoUpdateGeometry: {type: Boolean, value: false},
       },
+      observers: [
+        '_paintChanged(paint)',
+      ],
     };
   }
 
@@ -53,18 +56,7 @@ class PaintUnderlay extends Polymer.Element {
     if (!this.paint) {
       return;
     }
-    if (NativePaint.available) {
-      Painters.ensure(this.paint);
-      this.$.underlay.width = 0;
-      this.$.underlay.height = 0;
-      this.$.underlay.style.backgroundImage = `paint(${this.paint})`;
-    } else {
-      this._canvasPainter = new CanvasPainter({
-        canvas: pu.$.underlay,
-        painter: Painters.get(this.paint),
-      });
-      this._scheduleAnimation();
-    }
+
   }
 
   updateGeometry() {
@@ -83,6 +75,26 @@ class PaintUnderlay extends Polymer.Element {
     }
   }
 
+  _paintChanged(paint) {
+    Painters.get(this.paint).then(painter => {
+      if (this.paint == paint)
+        this._initPainter(painter);
+    });
+  }
+
+  _initPainter(painter) {
+    if (NativePaint.available) {
+      this.$.underlay.width = 0;
+      this.$.underlay.height = 0;
+      this.$.underlay.style.backgroundImage = `paint(${this.paint})`;
+    } else {
+      this._canvasPainter = new CanvasPainter({
+        canvas: pu.$.underlay,
+        painter: new painter(),
+      });
+      this._scheduleAnimation();
+    }
+  }
   get _fallbackActive() {
     // FIXME: Check native.
     return this._connected;

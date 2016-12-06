@@ -30,7 +30,7 @@ class NativePaint {
   }
   static register(name, paintCtor) {
     paintWorklet.import(`data:text/javascript,${encodeURIComponent(paintCtor.toString())}`);
-    paintWorklet.import(`data:text/javascript,registerPaint(${JSON.stringify(name)}, CardStack)`);
+    paintWorklet.import(`data:text/javascript,registerPaint(${JSON.stringify(name)}, ${paintCtor.name})`);
   }
 }
 
@@ -38,17 +38,30 @@ class Painters {
   constructor() {
   }
   static registerPaint(name, ctor) {
-    Painters._painters[name] = ctor;
-  }
-  static ensure(name) {
-    if (NativePaint.available && !this._nativePainters[name]) {
-      NativePaint.register(name, Painters._painters[name]);
+    if (name in Painters._pending) {
+      Painters._pending[name](ctor);
+    } else {
+      Painters._painters[name] = Promise.resolve(ctor);
     }
   }
+  static ensure(name) {
+  }
   static get(name) {
-    return new Painters._painters[name]();
+    if (!(name in Painters._painters)) {
+      Painters._painters[name] = new Promise(resolve => Painters._pending[name] = resolve);
+    }
+    if (NativePaint.available && !this._nativePainters[name]) {
+      Painters._painters[name].then(painter => {
+        if (NativePaint.available && !this._nativePainters[name]) {
+          this._nativePainters[name] = true;
+          NativePaint.register(name, painter);
+        }
+      });
+    }
+    return Painters._painters[name];
   }
 }
+Painters._pending = {};
 Painters._painters = {};
 Painters._nativePainters = {};
 
@@ -138,6 +151,7 @@ class CanvasPainter {
     }
     let ctx = canvas.getContext('2d');
     patchContext(ctx, this._ratio);
+    ctx.beginPath();
     ctx.resetTransform();
     if (clear) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
