@@ -33,7 +33,6 @@
   class Painter {
     static get inputProperties() { return ['--color']; }
     paint(ctx, geom, properties) {
-      console.log(properties);
       ctx.fillStyle = properties.get('--color').cssText;
       ctx.fillRect(0, 0, geom.width, geom.height);
     }
