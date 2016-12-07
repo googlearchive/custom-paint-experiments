@@ -5,6 +5,8 @@
 <link rel="import" href="cross-painter.html">
 <body>
 
-<paint-underlay id=pu paint="card-stack" style="width: 400px" auto-update-geometry>
+<paint-underlay paint="cross" style="width: 400px" auto-update-geometry>
+<paint-underlay slot=content paint="card-stack" style="width: 400px" auto-update-geometry auto-update-ratio>
   <div style="padding: 30px" slot=content contenteditable>Type here!</div>
+</paint-underlay>
 </paint-underlay>

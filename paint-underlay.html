@@ -31,6 +31,7 @@ class PaintUnderlay extends Polymer.Element {
         paint: String,
         autoUpdateStyle: {type: Boolean, value: false},
         autoUpdateGeometry: {type: Boolean, value: false},
+        autoUpdateRatio: {type: Boolean, value: false},
       },
       observers: [
         '_paintChanged(paint)',
@@ -44,7 +45,7 @@ class PaintUnderlay extends Polymer.Element {
   connectedCallback() {
     this._connected = true;
     super.connectedCallback();
-    this._scheduleAnimation();
+    this._scheduleUpdatesAndRepaint();
   }
   disconnectedCallback() {
     this._connected = false;
@@ -81,27 +82,51 @@ class PaintUnderlay extends Polymer.Element {
         this._initPainter(painter);
     });
   }
+  _devicePixelRatioChanged() {
+    if (!this._fallback || !this.autoUpdateRatio) {
+      return;
+    }
+    this._canvasPainter.ratio = window.devicePixelRatio;
+    this._scheduleUpdatesAndRepaint();
+  }
+  _observeDevicePixelRatio() {
+    if (!this._fallback || !this.autoUpdateRatio) {
+      if (this._mediaQuery) {
+        this._mediaQuery.onchange = null;
+        this._mediaQuery = null;
+      }
+      return;
+    }
+    var ratio = window.devicePixelRatio;
+    var media = `(min-resolution: ${ratio}dppx) and (max-resolution: ${ratio}dppx)`;
+    if (this._mediaQuery && this._mediaQuery.media != media) {
+      this._mediaQuery.onchange = null;
+      this._mediaQuery = null;
+    }
+
+    this._mediaQuery = window.matchMedia(media);
+    this._mediaQuery.onchange = () => this._devicePixelRatioChanged();
+  }
 
   _initPainter(painter) {
-    if (NativePaint.available) {
+    if (this._fallback) {
+      this._canvasPainter = new CanvasPainter({
+        canvas: this.$.underlay,
+        painter: new painter(),
+      });
+      this._scheduleUpdatesAndRepaint();
+    } else {
       this.$.underlay.width = 0;
       this.$.underlay.height = 0;
       this.$.underlay.style.backgroundImage = `paint(${this.paint})`;
-    } else {
-      this._canvasPainter = new CanvasPainter({
-        canvas: pu.$.underlay,
-        painter: new painter(),
-      });
-      this._scheduleAnimation();
     }
   }
-  get _fallbackActive() {
-    // FIXME: Check native.
-    return this._connected;
+  get _fallback() {
+    return !NativePaint.available;
   }
   _animationCallback() {
     this._rafId = undefined;
-    if (!this._fallbackActive) {
+    if (!this._connected || !this._fallback) {
       return;
     }
     if (this.autoUpdateGeometry) {
@@ -112,13 +137,14 @@ class PaintUnderlay extends Polymer.Element {
     }
     this.repaint();
     if (this.autoUpdateGeometry || this.autoUpdateStyle) {
-      this._scheduleAnimation();
+      this._scheduleUpdatesAndRepaint();
     }
   }
-  _scheduleAnimation() {
-    if (!this._fallbackActive) {
+  _scheduleUpdatesAndRepaint() {
+    if (!this._connected || !this._fallback) {
       return;
     }
+    this._observeDevicePixelRatio();
     this._rafId = requestAnimationFrame(t => this._animationCallback());
   }
 }
