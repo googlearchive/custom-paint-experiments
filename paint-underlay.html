@@ -86,26 +86,31 @@ class PaintUnderlay extends Polymer.Element {
     if (!this._fallback || !this.autoUpdateRatio) {
       return;
     }
-    this._canvasPainter.ratio = window.devicePixelRatio;
     this._scheduleUpdatesAndRepaint();
   }
   _observeDevicePixelRatio() {
     if (!this._fallback || !this.autoUpdateRatio) {
       if (this._mediaQuery) {
-        this._mediaQuery.onchange = null;
+        this._mediaQuery.removeListener(this._mediaQueryListener);
         this._mediaQuery = null;
       }
       return;
     }
     var ratio = window.devicePixelRatio;
-    var media = `(min-resolution: ${ratio}dppx) and (max-resolution: ${ratio}dppx)`;
+    var max = Math.floor(ratio * 1000) / 1000;
+    var min = Math.ceil(ratio * 1000) / 1000;
+    this._canvasPainter.ratio = ratio;
+    var media = `(min-resolution: ${min}dppx) and (max-resolution: ${max}dppx)`;
     if (this._mediaQuery && this._mediaQuery.media != media) {
-      this._mediaQuery.onchange = null;
+      this._mediaQuery.removeListener(this._mediaQueryListener);
       this._mediaQuery = null;
     }
 
-    this._mediaQuery = window.matchMedia(media);
-    this._mediaQuery.onchange = () => this._devicePixelRatioChanged();
+    if (!this._mediaQuery) {
+      this._mediaQuery = window.matchMedia(media);
+      this._mediaQueryListener = () => this._devicePixelRatioChanged();
+      this._mediaQuery.addListener(this._mediaQueryListener);
+    }
   }
 
   _initPainter(painter) {
@@ -141,7 +146,7 @@ class PaintUnderlay extends Polymer.Element {
     }
   }
   _scheduleUpdatesAndRepaint() {
-    if (!this._connected || !this._fallback) {
+    if (!this._connected || !this._fallback || this._rafId) {
       return;
     }
     this._observeDevicePixelRatio();
@@ -150,4 +155,3 @@ class PaintUnderlay extends Polymer.Element {
 }
 customElements.define(PaintUnderlay.is, PaintUnderlay);
 </script>
-
