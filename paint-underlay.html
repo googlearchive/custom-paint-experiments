@@ -99,7 +99,9 @@ class PaintUnderlay extends Polymer.Element {
     var ratio = window.devicePixelRatio;
     var max = Math.floor(ratio * 1000) / 1000;
     var min = Math.ceil(ratio * 1000) / 1000;
-    this._canvasPainter.ratio = ratio;
+    if (this._canvasPainter) {
+      this._canvasPainter.ratio = ratio;
+    }
     var media = `(min-resolution: ${min}dppx) and (max-resolution: ${max}dppx)`;
     if (this._mediaQuery && this._mediaQuery.media != media) {
       this._mediaQuery.removeListener(this._mediaQueryListener);

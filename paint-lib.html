@@ -118,6 +118,9 @@ class CanvasPainter {
     return this._ratio;
   }
   set ratio(value) {
+    if (this._ratio == value) {
+      return;
+    }
     this._ratio = value;
     this._invalid = true;
   }

@@ -1,0 +1,10 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../webcomponentsjs/webcomponents-lite.js"></script>
+<link rel="import" href="paint-lib.html">
+<link rel="import" href="paint-underlay.html">
+<link rel="import" href="speech-bubble-painter.html">
+<body>
+
+<paint-underlay paint="speech-bubble" auto-update-geometry auto-update-ratio auto-update-style style="stroke-opacity: 0.95">
+  <div style="padding: 10px; padding-bottom: 20px" slot=content contenteditable>Hello!</div>
+</paint-underlay>

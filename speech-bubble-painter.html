@@ -1,0 +1,48 @@
+<link rel="import" href="paint-lib.html">
+<script>
+class SpeechBubble {
+  static get inputProperties() {
+    return ['stroke-opacity'];
+  }
+  paint(ctx, geom, properties) {
+    let inset = 4;
+    let radius = 6;
+    let extent = inset - 1;
+    let arrowProgress = properties.get('stroke-opacity')
+        ? parseFloat(properties.get('stroke-opacity').cssText)
+        : 0.25;
+    let arrowWidth = 10;
+    let arrowHeight = 10;
+
+    let left = inset;
+    let right = geom.width - inset;
+    let top = inset;
+    let bottom = geom.height - (inset + arrowHeight);
+
+    ctx.beginPath();
+    ctx.moveTo(left + radius, top);
+    ctx.lineTo(right - radius, top);
+    ctx.arcTo(right, top, right, top + radius, radius);
+    ctx.lineTo(right, bottom - radius);
+    ctx.arcTo(right, bottom, right - radius, bottom, radius);
+
+    let arrowX = left + radius + arrowWidth/2 + ((right - radius - arrowWidth/2) - (left + radius + arrowWidth/2)) * arrowProgress;
+    ctx.lineTo(arrowX + arrowWidth/2, bottom);
+    ctx.lineTo(arrowX, bottom + arrowHeight);
+    ctx.lineTo(arrowX - arrowWidth/2, bottom);
+    ctx.lineTo(arrowX, bottom);
+    ctx.lineTo(left + radius, bottom);
+
+    ctx.arcTo(left, bottom, left, bottom - radius, radius);
+    ctx.lineTo(left, bottom + radius);
+    ctx.arcTo(left, top, left + radius, inset, radius);
+    ctx.closePath();
+
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'blue'; //#AAAAAA';
+    ctx.fillStyle = 'white';
+    ctx.fill();
+  }
+}
+Painters.registerPaint('speech-bubble', SpeechBubble);
+</script>
