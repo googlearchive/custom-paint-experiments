@@ -1,0 +1,18 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../webcomponentsjs/webcomponents-lite.js"></script>
+<link rel="import" href="paint-lib.html">
+<link rel="import" href="paint-underlay.html">
+<link rel="import" href="radial-painter.html">
+<link rel="import" href="cross-painter.html">
+<body>
+  <style>
+    paint-underlay{
+    display:inline-block;
+    }
+  </style>
+
+<paint-underlay paint="cross" auto-update-geometry>
+<paint-underlay slot=content paint="radial-rings" auto-update-geometry auto-update-ratio>
+  <div style="resize:both;overflow:hidden" slot=content>&nbsp;</div>
+</paint-underlay>
+</paint-underlay>

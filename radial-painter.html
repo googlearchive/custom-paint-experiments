@@ -1,0 +1,29 @@
+<link rel="import" href="paint-lib.html">
+<script>
+class RadialRings {
+  static get inputProperties() {
+    return ['stroke-opacity'];
+  }
+  paint(ctx, geom, properties) {
+    var s = 1234.4;//Math.round(Math.random() * 1000);
+    function rand() {
+      s = s * 16807 % 2147483647;
+      return s / 2147483647;
+    }
+
+    var r = Math.sqrt(geom.width * geom.width + geom.height * geom.height);
+    do {
+      ctx.beginPath();
+      var x = 0; //rand() < 0.5 ? 0 : geom.width;
+      ctx.ellipse(x, geom.height, r, r, 0, Math.PI * 0, Math.PI * 2);
+      ctx.closePath();
+
+      ctx.fillStyle = `rgb(${rand() * 255|0}, ${rand() * 255|0}, ${rand() * 255|0})`;
+      ctx.fill();
+      r -= 5 + rand() * 20;
+    } while (r > 0)
+
+  }
+}
+Painters.registerPaint('radial-rings', RadialRings);
+</script>
